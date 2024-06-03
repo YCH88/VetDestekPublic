@@ -1,0 +1,74 @@
+﻿@model List<ENtityFrameWork_Test.Models.Home.SymptomSearchDto>;
+
+@{
+	ViewData["Title"] = "Home Page";
+}
+
+<link href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<div>
+	<label style="color:white"> Belirti Ara </label>
+</div>
+<div style="margin-bottom:25px">
+	<select class="symptomDropDown form-control w-25" name="symptoms" multiple="multiple" asp-items="@(new SelectList(Model,"Id","Name"))">
+	</select>
+</div>
+<table class="table table-bordered table-striped" id="DiseaseTable">
+	<thead>
+		<tr>
+			<th scope="col">Hastalık İsmi</th>
+			<th scope="col">Açıklama</th>
+			<th scope="col">Belirtiler</th>
+			<th scope="col">Görülen Hayvanlar</th>
+			<th scope="col">Tedavi</th>
+		</tr>
+	</thead>
+</table>
+
+
+<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap.min.js"></script>
+<script>
+	$(document).ready(function () {
+		drawDT();
+
+		$('.symptomDropDown').select2();
+
+		$('.symptomDropDown').on("change", function (e) {
+			drawDT();
+		});
+
+
+		function drawDT() {
+			if ($.fn.DataTable.isDataTable('#DiseaseTable')) {
+				$('#DiseaseTable').DataTable().destroy();
+			}
+			var table = $('#DiseaseTable').DataTable({
+				"proccessing": true,
+				"serverSide": true,
+				searching: false,
+				"ajax": {
+					url: "/Home/GetDiseaseList",
+					type: 'POST',
+					dataType: 'json',
+					data: { 'symptomIds':$('.symptomDropDown').val() }
+				},
+				"language": {
+					"info": "",
+					"infoFiltered": ""
+				},
+				"lengthChange": false,
+				"columns": [
+					{ "data": "name" },
+					{ "data": "desc" },
+					{ "data": "symptoms", "orderable": false },
+					{ "data": "animals", "orderable": false },
+					{ "data": "treatment" },
+				]
+			});
+
+		}
+	});
+</script>
